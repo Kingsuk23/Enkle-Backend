@@ -4,19 +4,185 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
-  id       String   @id @default(uuid())
+  id String @id @default(uuid())
+
   name     String
-  email    String   @unique
+  email    String @unique
   password String
+
   createAt DateTime @default(now())
   updateAt DateTime @updatedAt
+
+  properties Property[]
+}
+
+model Address {
+  id String @id @default(uuid())
+
+  street      String
+  city        String
+  state       String
+  postal_code String
+  country     String
+
+  latitude  Float?
+  longitude Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  properties Property[]
+
+  @@index([city])
+  @@index([state])
+  @@index([postal_code])
+  @@index([latitude, longitude])
+}
+
+model Property {
+  id String @id @default(uuid())
+
+  price         Int
+  bathroom      Int
+  bedroom       Int
+  price_reduced Boolean
+
+  property_type   PropertyType
+  status          ListingStatus
+  listing_type    ListingType
+  tour            TourType
+  day_on_platform DayOn
+  square_feet     Int
+
+  open_house_date DateTime?
+  construction_type ConstructionType
+
+  garage   Int?
+  lot_size String?
+  home_age Int?
+  stories  String?
+
+  home_feature HomeFeature[]
+  lot_feature  LotFeature[]
+
+  addressId String
+  address   Address @relation(fields: [addressId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  media PropertyMedia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([price])
+  @@index([property_type])
+  @@index([listing_type])
+  @@index([status])
+}
+
+model PropertyMedia {
+  id String @id @default(uuid())
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  type mediaType
+  url  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ConstructionType {
+  UNDER_CONSTRUCTION
+  READY_TO_MOVE
+  NEW_CONSTRUCTION
+  RESALE
+  PRE_LAUNCH
+}
+
+enum mediaType {
+  IMAGE
+  VIDEO
+  THREED_MODEL
+  THUMBNAIL
+}
+
+enum PropertyType {
+  HOME
+  CONDO
+  TOWN_HOME
+  FARM
+  LAND
+}
+
+enum ListingStatus {
+  ACTIVE
+  PENDING
+}
+
+enum ListingType {
+  EXISTING_HOMES
+  NEW_CONSTRUCTION
+  FORECLOSURES
+}
+
+enum TourType {
+  OPEN_HOUSE
+  THREED
+}
+
+enum DayOn {
+  TODAY
+  WEEK
+  FOURTEEN_DAY
+  TWENTY_ONE_DAY
+  THIRTY_DAY
+}
+
+enum HomeFeature {
+  ACCESSIBILITY
+  BASEMENT
+  CENTRAL_AIR
+  CENTRAL_HEAT
+  OFFICE
+  DINING_ROOM
+  DISHWASHER
+  ELEVATOR
+  ENERGY_EFFICIENT
+  FAMILY_ROOM
+  FIREPLACE
+  FORCED_AIR
+  FURNISHED
+  GAME_ROOM
+  HARDWOOD_FLOORS
+  HORSE_FACILITY
+  IN_HOME_LAUNDRY
+  PETS_ALLOWED
+  POOL
+  SPA
+}
+
+enum LotFeature {
+  CITY_VIEW
+  CORNER_LOT
+  CUL_DE_SAC
+  GOLF_COURSE_LOT
+  GOLF_COURSE_VIEW
+  HILL
+  LAKE_VIEW
+  OCEAN_VIEW
+  RIVER_VIEW
+  WATERFRONT
 }

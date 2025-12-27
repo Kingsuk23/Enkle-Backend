@@ -2,6 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import signup_route from './router/authentication_router';
+import property_route from './router/property_router';
 
 const app = express();
 
@@ -17,5 +18,6 @@ app.use(
 );
 
 app.use('/api/v1/auth', signup_route);
+app.use('/api/v1', property_route);
 
 export default app;
